@@ -103,7 +103,7 @@ def get_args():
     parser.add_argument(
         '--num-steps',
         type=int,
-        default=6000,
+        default=6,
         help='number of forward steps')
     parser.add_argument(
         '--ppo-epoch',
@@ -143,7 +143,7 @@ def get_args():
     parser.add_argument(
         '--num-env-steps',
         type=int,
-        default=6000000,
+        default=6,
         help='number of environment steps to train')
     parser.add_argument(
         '--env-name',
@@ -155,7 +155,7 @@ def get_args():
         help='directory to save agent logs (default: /tmp/gym)')
     parser.add_argument(
         '--save-dir',
-        default='./trained_models/',
+        default='trained_models/',
         help='directory to save agent logs')
     parser.add_argument(
         '--base-net-small',

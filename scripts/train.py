@@ -191,13 +191,15 @@ def main(sysargv):
         rollouts.compute_returns(next_value, args.use_gae, args.gamma,
                                  args.gae_lambda, args.use_proper_time_limits)
 
-        value_loss, action_loss, dist_entropy, code_loss, inv_loss = agent.update(rollouts, gail_train_loader, device)
+        if args.gail:
+            value_loss, action_loss, dist_entropy, code_loss, inv_loss = agent.update(rollouts, gail_train_loader, device)
 
         rollouts.after_update()
 
         if (j % args.save_interval == 0
                 or j == num_updates - 1) and args.save_dir != "":
-            save_path = os.path.join(args.save_dir, args.env_name)
+            from pathlib import Path
+            save_path = os.path.join(str(Path(__file__).parent.parent), args.save_dir, args.env_name)
             try:
                 os.makedirs(save_path)
             except OSError:
@@ -211,14 +213,15 @@ def main(sysargv):
         if j % args.log_interval == 0 and len(episode_rewards) > 1:
             total_num_steps = (j + 1) * args.num_processes * args.num_steps
             end = time.time()
-            print(
-                "Updates {}, num timesteps {}, FPS {} \n Last {} training episodes: mean/median reward {:.3f}/{:.3f}, min/max reward {:.3f}/{:.3f}, dist_ent {:.3f}, value loss {:.3f}, action loss {:.3f}, code loss {:.3f}, inv loss {:.3f}\n"
-                .format(j, total_num_steps,
-                        int(total_num_steps / (end - start)),
-                        len(episode_rewards), np.mean(episode_rewards),
-                        np.median(episode_rewards), np.min(episode_rewards),
-                        np.max(episode_rewards), dist_entropy, value_loss,
-                        action_loss, code_loss, inv_loss))
+            if args.gail:
+                print(
+                    "Updates {}, num timesteps {}, FPS {} \n Last {} training episodes: mean/median reward {:.3f}/{:.3f}, min/max reward {:.3f}/{:.3f}, dist_ent {:.3f}, value loss {:.3f}, action loss {:.3f}, code loss {:.3f}, inv loss {:.3f}\n"
+                    .format(j, total_num_steps,
+                            int(total_num_steps / (end - start)),
+                            len(episode_rewards), np.mean(episode_rewards),
+                            np.median(episode_rewards), np.min(episode_rewards),
+                            np.max(episode_rewards), dist_entropy, value_loss,
+                            action_loss, code_loss, inv_loss))
 
         if (args.eval_interval is not None and j % args.eval_interval == 0 and j != 0):
             eval_score = evaluate(envs, actor_critic, args.env_name, args.seed,
