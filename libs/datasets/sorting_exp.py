@@ -1,10 +1,9 @@
-import os
 import numpy as np
 import torch
 import torch.utils.data
 
 
-class Game_dataset(torch.utils.data.Dataset):
+class Sorting_dataset(torch.utils.data.Dataset):
     def __init__(self, args):
         self.args = args
         self.data_ids = [i for i in range(0, 40)] + [i for i in range(100, 140)] + [i for i in range(150, 190)] # dataset 20-20-40-40
@@ -18,8 +17,7 @@ class Game_dataset(torch.utils.data.Dataset):
         self.dataset_name = self.args.gail_experts_dir
 
         for item in self.data_ids:
-            from pathlib import Path
-            f = open('{0}/{1}/{2}.txt'.format(str(Path(__file__).parent.parent.parent),self.dataset_name, item), 'r')
+            f = open('{0}/{1}.txt'.format(self.dataset_name, item), 'r')
             prior_str = f.readline()[:-1]
             tmp = prior_str.split(' ')
             self.data_buff[item] = [[float(tmp[0]), float(tmp[1]), float(tmp[2]), float(tmp[3]), float(tmp[4]), float(tmp[5]), float(tmp[6]), float(tmp[7]), float(tmp[8]), float(tmp[9]), float(tmp[10]), float(tmp[11]), float(tmp[12]), float(tmp[13])], ]

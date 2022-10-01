@@ -4,6 +4,8 @@ import random
 import torch
 import numpy as np
 from collections import deque
+import gym
+from tqdm import tqdm
 
 import sys
 from os.path import dirname, join, abspath
@@ -15,6 +17,7 @@ from a2c_ppo_acktr.algo import gail
 from configs.exp1_config import get_args as get_args_exp1
 from configs.exp2_config import get_args as get_args_exp2
 from configs.exp3_config import get_args as get_args_exp3
+from configs.assistive_config import get_args as get_args_exp4
 
 from libs.envs.env_exp1 import gameEnv
 from libs.datasets.dataset_exp1 import Game_dataset
@@ -22,6 +25,7 @@ from libs.envs.env_exp2 import igEnv as igEnv_exp2
 from libs.datasets.dataset_exp2 import ig_dataset as ig_dataset_exp2
 from libs.envs.env_exp3 import igEnv as igEnv_exp3
 from libs.datasets.dataset_exp3 import ig_dataset as ig_dataset_exp3
+from libs.envs.assistive_exp import igEnv as igEnv_exp4
 
 from scripts.evaluation import evaluate
 from a2c_ppo_acktr.model import Policy
@@ -32,6 +36,8 @@ def main(sysargv):
         args = get_args_exp1()
     elif sysargv[2] == 'cogail_exp2_handover':
         args = get_args_exp2()
+    elif sysargv[2] == 'cogail_assistive_env':
+        args = get_args_exp4()
     else:
         args = get_args_exp3()
 
@@ -56,6 +62,8 @@ def main(sysargv):
         envs = gameEnv(args)
     elif args.env_name == 'cogail_exp2_handover':
         envs = igEnv_exp2(args)
+    elif args.env_name == 'cogail_assistive_env':
+        envs = igEnv_exp4(args)
     else:
         envs = igEnv_exp3(args)
 
@@ -126,11 +134,14 @@ def main(sysargv):
     start = time.time()
     num_updates = int(args.num_env_steps) // args.num_steps // args.num_processes
 
-    for j in range(args.bc_pretrain_steps):
-        loss = agent.pretrain(gail_train_loader, device)
-        print("Pretrain round {0}: loss {1}".format(j, loss))
+    if args.gail:
+        for j in range(args.bc_pretrain_steps):
+            loss = agent.pretrain(gail_train_loader, device)
+            print("Pretrain round {0}: loss {1}".format(j, loss))
 
     for j in range(num_updates):
+
+        print("Update iter: ", j)
 
         if args.use_linear_lr_decay:
             utils.update_linear_schedule(
@@ -140,7 +151,7 @@ def main(sysargv):
         if args.use_curriculum:
             envs.update_step_size(j, num_updates)
 
-        for step in range(args.num_steps):
+        for step in tqdm(range(args.num_steps)):
             with torch.no_grad():
                 value, action, action_log_prob, recurrent_hidden_states = actor_critic.act(
                     rollouts.obs[step], rollouts.random_seed[step],

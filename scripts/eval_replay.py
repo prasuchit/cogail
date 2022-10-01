@@ -9,6 +9,7 @@ sys.path.insert(0, abspath(join(dirname(__file__), '..')))
 from configs.exp1_config import get_args as get_args_exp1
 from configs.exp2_config import get_args as get_args_exp2
 from configs.exp3_config import get_args as get_args_exp3
+from configs.assistive_config import get_args as get_args_exp4
 
 from libs.envs.env_exp1 import gameEnv
 from libs.datasets.dataset_exp1 import Game_dataset
@@ -119,6 +120,8 @@ def main(sysargv):
         args = get_args_exp1()
     elif sysargv[2] == 'cogail_exp2_handover':
         args = get_args_exp2()
+    elif sysargv[2] == 'cogail_assistive_env':
+        args = get_args_exp4()
     else:
         args = get_args_exp3()
 
@@ -129,6 +132,10 @@ def main(sysargv):
     elif args.env_name == 'cogail_exp2_handover':
         envs = igEnv_exp2(args)
         dataset = 'dataset_handover_eval_final'
+        dataset_id = [i for i in range(1, 14)] + [i for i in range(15, 68)]
+    elif args.env_name == 'cogail_assistive_env':
+        envs = igEnv_exp2(args)
+        dataset = 'dataset_assistive_eval'
         dataset_id = [i for i in range(1, 14)] + [i for i in range(15, 68)]
     else:
         envs = igEnv_exp3(args)

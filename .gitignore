@@ -1,0 +1,6 @@
+**/*.txt
+**/*.npy
+**/*.zip
+**/*.DS_Store
+**/iGibson/*
+**/__pycache__/*
