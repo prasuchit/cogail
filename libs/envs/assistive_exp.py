@@ -11,7 +11,7 @@ import torch
 class igEnv():
     def __init__(self, args):
         self.args = args
-        self.env = gym.make("assistive_gym:FeedingSawyerHuman-v0")
+        self.env = gym.make(args.env_name)
         self.step_count = 0
 
         self.linspace = np.linspace(-0.8, 0.8, 5)
@@ -29,7 +29,7 @@ class igEnv():
         self.padding = torch.FloatTensor(np.array([[0.0 for i in range(self.feature_size)] for _ in range(self.seq_length)]))
 
         self.observation_space = self.env.observation_space
-        self.random_seed_space = spaces.Box(-1.0, 1.0, (2, ))
+        self.random_seed_space = spaces.Box(-1.0, 0.0, (2, ))
         self.action_space = self.env.action_space
         self.dataset = self.args.gail_experts_dir
         self.dataset_id = [i for i in range(1, 117)] + [i for i in range(118, 149)] + [i for i in range(150, 156)]
@@ -50,7 +50,7 @@ class igEnv():
 
         self.padding = torch.FloatTensor(np.array([[0.0 for i in range(self.feature_size)] for _ in range(self.seq_length)]))
 
-        return torch.FloatTensor(self.env.reset()), self.random_variable
+        return torch.FloatTensor(self.env.reset()[None,:]), self.random_variable
 
     def start_eval(self):
         self.eval_mode = True
@@ -72,6 +72,6 @@ class igEnv():
             obs, reward, done, info = self.env.step(action)
 
         if not done:
-            return torch.FloatTensor(obs), torch.FloatTensor([[float(reward)],]), [done], [{}], self.random_variable
+            return torch.FloatTensor(obs[None,:]), torch.FloatTensor([[float(reward)],]), [done], [{}], self.random_variable
         else:
-            return torch.FloatTensor(obs), torch.FloatTensor([[float(reward)],]), [done], [{'bad_transition':True}], self.random_variable
+            return torch.FloatTensor(obs[None,:]), torch.FloatTensor([[float(reward)],]), [done], [{'bad_transition':True}], self.random_variable

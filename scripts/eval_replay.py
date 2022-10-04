@@ -120,7 +120,7 @@ def main(sysargv):
         args = get_args_exp1()
     elif sysargv[2] == 'cogail_exp2_handover':
         args = get_args_exp2()
-    elif sysargv[2] == 'cogail_assistive_env':
+    elif sysargv[2] == 'assistive_gym:FeedingSawyerHuman-v0':
         args = get_args_exp4()
     else:
         args = get_args_exp3()
@@ -133,7 +133,7 @@ def main(sysargv):
         envs = igEnv_exp2(args)
         dataset = 'dataset_handover_eval_final'
         dataset_id = [i for i in range(1, 14)] + [i for i in range(15, 68)]
-    elif args.env_name == 'cogail_assistive_env':
+    elif args.env_name == 'assistive_gym:FeedingSawyerHuman-v0':
         envs = igEnv_exp2(args)
         dataset = 'dataset_assistive_eval'
         dataset_id = [i for i in range(1, 14)] + [i for i in range(15, 68)]

@@ -24,7 +24,7 @@ def evaluate(eval_envs, actor_critic, env_name, seed, num_processes, eval_log_di
                 eval_masks,
                 deterministic=True)
 
-        obs, succ, done, infos, random_seed = eval_envs.step(action)
+        obs, reward, done, infos, random_seed = eval_envs.step(action)
         obs, random_seed = obs.to(device), random_seed.to(device)
 
         eval_masks = torch.tensor(
@@ -32,11 +32,11 @@ def evaluate(eval_envs, actor_critic, env_name, seed, num_processes, eval_log_di
             dtype=torch.float32,
             device=device)
 
-        if done[0]:
-            if succ[0][0] == 1.0:
-                eval_episode_rewards.append(1.0)
-            else:
-                eval_episode_rewards.append(0.0)
+        # if done[0]:
+        if reward[0][0] >= 1.0:
+            eval_episode_rewards.append(reward[0][0])
+        else:
+            eval_episode_rewards.append(reward[0][0])
 
     eval_envs.stop_eval()
 

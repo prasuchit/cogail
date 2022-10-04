@@ -5,7 +5,6 @@ import torch.utils.data
 class ig_dataset(torch.utils.data.Dataset):
     def __init__(self, args):
         self.data_ids = [i for i in range(1, 117)] + [i for i in range(118, 149)] + [i for i in range(150, 156)]
-        print(self.data_ids)
 
         self.args = args
 

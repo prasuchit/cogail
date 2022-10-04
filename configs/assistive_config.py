@@ -18,7 +18,7 @@ def get_args():
         help='do imitation learning with gail')
     parser.add_argument(
         '--gail-experts-dir',
-        default='dataset/dataset-assistive-env',
+        default='dataset/dataset_assistive_env',
         help='directory that contains expert demonstrations for gail')
     parser.add_argument(
         '--gail-batch-size',
@@ -33,7 +33,7 @@ def get_args():
     parser.add_argument(
         '--recode_dim',
         type=int,
-        default=102,
+        default=53,
         help='input feature dim of the code reconstruction model')
     parser.add_argument(
         '--code_size',
@@ -103,7 +103,7 @@ def get_args():
     parser.add_argument(
         '--num-steps',
         type=int,
-        default=6,
+        default=600,
         help='number of forward steps')
     parser.add_argument(
         '--ppo-epoch',
@@ -113,7 +113,7 @@ def get_args():
     parser.add_argument(
         '--bc-pretrain-steps',
         type=int,
-        default=30,
+        default=50,
         help='number of bc pretrain steps')
     parser.add_argument(
         '--num-mini-batch',
@@ -133,21 +133,21 @@ def get_args():
     parser.add_argument(
         '--save-interval',
         type=int,
-        default=100,
+        default=30,
         help='save interval, one save per n updates')
     parser.add_argument(
         '--eval-interval',
         type=int,
-        default=30,
+        default=20,
         help='eval interval, one eval per n updates')
     parser.add_argument(
         '--num-env-steps',
         type=int,
-        default=6,
+        default=600000,
         help='number of environment steps to train')
     parser.add_argument(
         '--env-name',
-        default='FeedingSawyerHuman-v1',
+        default='assistive_gym:FeedingSawyerHuman-v0',
         help='environment to train on')
     parser.add_argument(
         '--log-dir',
@@ -155,7 +155,7 @@ def get_args():
         help='directory to save agent logs (default: /tmp/gym)')
     parser.add_argument(
         '--save-dir',
-        default='trained_models/',
+        default='./trained_models/',
         help='directory to save agent logs')
     parser.add_argument(
         '--base-net-small',

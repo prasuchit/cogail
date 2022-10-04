@@ -26,6 +26,7 @@ from libs.datasets.dataset_exp2 import ig_dataset as ig_dataset_exp2
 from libs.envs.env_exp3 import igEnv as igEnv_exp3
 from libs.datasets.dataset_exp3 import ig_dataset as ig_dataset_exp3
 from libs.envs.assistive_exp import igEnv as igEnv_exp4
+from libs.datasets.dataset_assistive_exp import ig_dataset as ig_dataset_exp4
 
 from scripts.evaluation import evaluate
 from a2c_ppo_acktr.model import Policy
@@ -36,7 +37,7 @@ def main(sysargv):
         args = get_args_exp1()
     elif sysargv[2] == 'cogail_exp2_handover':
         args = get_args_exp2()
-    elif sysargv[2] == 'cogail_assistive_env':
+    elif sysargv[2] == 'assistive_gym:FeedingSawyerHuman-v0':
         args = get_args_exp4()
     else:
         args = get_args_exp3()
@@ -62,7 +63,7 @@ def main(sysargv):
         envs = gameEnv(args)
     elif args.env_name == 'cogail_exp2_handover':
         envs = igEnv_exp2(args)
-    elif args.env_name == 'cogail_assistive_env':
+    elif args.env_name == 'assistive_gym:FeedingSawyerHuman-v0':
         envs = igEnv_exp4(args)
     else:
         envs = igEnv_exp3(args)
@@ -110,6 +111,8 @@ def main(sysargv):
             expert_dataset = Game_dataset(args)
         elif args.env_name == 'cogail_exp2_handover':
             expert_dataset = ig_dataset_exp2(args)
+        elif args.env_name == 'assistive_gym:FeedingSawyerHuman-v0':
+            expert_dataset = ig_dataset_exp4(args)
         else:
             expert_dataset = ig_dataset_exp3(args)
 
