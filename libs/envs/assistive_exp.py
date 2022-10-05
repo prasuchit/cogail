@@ -67,9 +67,12 @@ class igEnv():
             obs, _ = self.reset()
             return torch.FloatTensor(obs), torch.FloatTensor([[float(success)], ]), [done], [{'bad_transition':True}], self.random_variable
         else:
-            action = actions[0].detach().cpu().numpy()
+            if torch.is_tensor(actions):
+                if actions.device != 'cpu':
+                    actions = actions[0].detach().cpu().numpy()
+            else: actions = actions[0]
             self.step_count += 1
-            obs, reward, done, info = self.env.step(action)
+            obs, reward, done, info = self.env.step(actions)
 
         if not done:
             return torch.FloatTensor(obs[None,:]), torch.FloatTensor([[float(reward)],]), [done], [{}], self.random_variable

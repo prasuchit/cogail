@@ -25,6 +25,9 @@ from libs.envs.assistive_exp import igEnv as igEnv_exp4
 from a2c_ppo_acktr.model import Policy
 from a2c_ppo_acktr.storage import RolloutStorage
 
+from stable_baselines3 import PPO
+from stable_baselines3.common.evaluation import evaluate_policy
+
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pybullet as p
@@ -59,11 +62,14 @@ def main(sysargv):
     else:
         envs = igEnv_exp3(args)
 
-    device = torch.device("cuda:0" if args.cuda else "cpu")
+    # device = torch.device("cuda:0" if args.cuda else "cpu")
+    device = "cpu"
 
     folder = PACKAGE_PATH + f'/trained_models/{args.env_name}'
 
-    actor_critic, obs_rms = torch.load(os.path.join("{0}/{1}.pt".format(folder, args.env_name)), map_location=device)
+    # actor_critic, obs_rms = torch.load(os.path.join("{0}/{1}.pt".format(folder, args.env_name)), map_location=device)
+    model = PPO.load(os.path.join("{0}/{1}_ppo.zip".format(folder, args.env_name)), device = device)
+    # mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
     obs, random_seed = envs.reset()
     obs, random_seed = obs.to(device), random_seed.to(device)
 
@@ -79,21 +85,22 @@ def main(sysargv):
 
     length = 0
     reward = 0
-    num_steps = 100
+    num_steps = 1000
     num_processes=1
 
-    recurrent_hidden_states = torch.zeros(
-        num_processes, actor_critic.recurrent_hidden_state_size, device=device)
-    masks = torch.zeros(num_processes, 1, device=device)
+    # recurrent_hidden_states = torch.zeros(
+    #     num_processes, actor_critic.recurrent_hidden_state_size, device=device)
+    # masks = torch.zeros(num_processes, 1, device=device)
 
     for step in tqdm(range(num_steps)):
-        with torch.no_grad():
-            _, action, _, recurrent_hidden_states = actor_critic.act(
-                                                        obs,
-                                                        random_seed,
-                                                        recurrent_hidden_states,
-                                                        masks,
-                                                        deterministic=True)
+        # with torch.no_grad():
+            # _, action, _, recurrent_hidden_states = actor_critic.act(
+            #                                             obs,
+            #                                             random_seed,
+            #                                             recurrent_hidden_states,
+            #                                             masks,
+            #                                             deterministic=True)
+        action, _states = model.predict(obs, deterministic=True)
 
         new_obs, rewards, dones, infos, random_seed = envs.step(action)
         new_obs, random_seed = new_obs.to(device), random_seed.to(device)

@@ -29,7 +29,7 @@ class ig_dataset(torch.utils.data.Dataset):
         self.seq_length = 10
         self.state_size = self.envs.obs_robot_len+self.envs.obs_human_len
 
-        self.dataset_name = self.args.gail_experts_dir
+        self.dataset_name = self.args.gail_experts_dir + '/' + args.env_name
 
         from pathlib import Path
         self.exp_data = torch.load(str(Path(__file__).parent.parent.parent) + '/' + self.dataset_name + '/data.pt')

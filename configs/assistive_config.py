@@ -14,7 +14,7 @@ def get_args():
     parser.add_argument(
         '--gail',
         action='store_true',
-        default=False,
+        default=True,
         help='do imitation learning with gail')
     parser.add_argument(
         '--gail-experts-dir',
