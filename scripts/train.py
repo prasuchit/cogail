@@ -18,15 +18,18 @@ from configs.exp1_config import get_args as get_args_exp1
 from configs.exp2_config import get_args as get_args_exp2
 from configs.exp3_config import get_args as get_args_exp3
 from configs.assistive_config import get_args as get_args_exp4
+from configs.sorting_config import get_args as get_args_exp5
 
 from libs.envs.env_exp1 import gameEnv
-from libs.datasets.dataset_exp1 import Game_dataset
 from libs.envs.env_exp2 import igEnv as igEnv_exp2
-from libs.datasets.dataset_exp2 import ig_dataset as ig_dataset_exp2
 from libs.envs.env_exp3 import igEnv as igEnv_exp3
-from libs.datasets.dataset_exp3 import ig_dataset as ig_dataset_exp3
 from libs.envs.assistive_exp import igEnv as igEnv_exp4
+from libs.envs.sorting_exp import igEnv as igEnv_exp5
+from libs.datasets.dataset_exp1 import Game_dataset
+from libs.datasets.dataset_exp2 import ig_dataset as ig_dataset_exp2
+from libs.datasets.dataset_exp3 import ig_dataset as ig_dataset_exp3
 from libs.datasets.dataset_assistive_exp import ig_dataset as ig_dataset_exp4
+from libs.datasets.dataset_sorting_exp import Sorting_dataset as ig_dataset_exp5
 
 from scripts.evaluation import evaluate
 from a2c_ppo_acktr.model import Policy
@@ -39,6 +42,8 @@ def main(sysargv):
         args = get_args_exp2()
     elif sysargv[2] == 'assistive_gym:FeedingSawyerHuman-v0':
         args = get_args_exp4()
+    elif sysargv[2] == 'ma_gym:HuRoSorting-v0':
+        args = get_args_exp5()
     else:
         args = get_args_exp3()
 
@@ -65,6 +70,8 @@ def main(sysargv):
         envs = igEnv_exp2(args)
     elif args.env_name == 'assistive_gym:FeedingSawyerHuman-v0':
         envs = igEnv_exp4(args)
+    elif args.env_name == 'ma_gym:HuRoSorting-v0':
+        envs = igEnv_exp5(args)
     else:
         envs = igEnv_exp3(args)
 
@@ -103,9 +110,14 @@ def main(sysargv):
 
     if args.gail:
         assert len(envs.observation_space.shape) == 1
-        discr = gail.Discriminator(
-            envs.observation_space.shape[0] + envs.action_space.shape[0], 64,
-            device, args.use_cross_entropy)
+        if envs.action_space.__class__.__name__ == "Discrete":
+            discr = gail.Discriminator(
+                envs.observation_space.shape[0] + envs.action_space.n, 64,
+                device, args.use_cross_entropy)
+        else:
+            discr = gail.Discriminator(
+                envs.observation_space.shape[0] + envs.action_space.shape[0], 64,
+                device, args.use_cross_entropy)
 
         if args.env_name == 'cogail_exp1_2dfq':
             expert_dataset = Game_dataset(args)
@@ -113,6 +125,8 @@ def main(sysargv):
             expert_dataset = ig_dataset_exp2(args)
         elif args.env_name == 'assistive_gym:FeedingSawyerHuman-v0':
             expert_dataset = ig_dataset_exp4(args)
+        elif args.env_name == 'ma_gym:HuRoSorting-v0':
+            expert_dataset = ig_dataset_exp5(args)
         else:
             expert_dataset = ig_dataset_exp3(args)
 
@@ -202,7 +216,10 @@ def main(sysargv):
         if (j % args.save_interval == 0
                 or j == num_updates - 1) and args.save_dir != "":
             from pathlib import Path
-            save_path = os.path.join(str(Path(__file__).parent.parent), args.save_dir, args.env_name)
+            if args.gail:
+                save_path = os.path.join(str(Path(__file__).parent.parent), args.save_dir, args.env_name, "IL_model")
+            else:
+                save_path = os.path.join(str(Path(__file__).parent.parent), args.save_dir, args.env_name)
             try:
                 os.makedirs(save_path)
             except OSError:
@@ -228,9 +245,12 @@ def main(sysargv):
 
         if (args.eval_interval is not None and j % args.eval_interval == 0 and j != 0):
             eval_score = evaluate(envs, actor_critic, args.env_name, args.seed,
-                     args.num_processes, eval_log_dir, device, 10)
+                     args.num_processes, eval_log_dir, device, 10, render=False)
 
-            save_path = os.path.join(args.save_dir, args.env_name)
+            if args.gail:
+                save_path = os.path.join(str(Path(__file__).parent.parent), args.save_dir, args.env_name, "IL_model")
+            else:
+                save_path = os.path.join(str(Path(__file__).parent.parent), args.save_dir, args.env_name)
             try:
                 os.makedirs(save_path)
             except OSError:

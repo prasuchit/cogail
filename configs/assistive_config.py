@@ -14,8 +14,13 @@ def get_args():
     parser.add_argument(
         '--gail',
         action='store_true',
-        default=True,
+        default=False,
         help='do imitation learning with gail')
+    parser.add_argument(
+        '--render',
+        action='store_true',
+        default=False,
+        help='Renders the pybullet env gui')
     parser.add_argument(
         '--gail-experts-dir',
         default='dataset/dataset_assistive_env',
@@ -103,7 +108,7 @@ def get_args():
     parser.add_argument(
         '--num-steps',
         type=int,
-        default=600,
+        default=6000,
         help='number of forward steps')
     parser.add_argument(
         '--ppo-epoch',
@@ -133,17 +138,17 @@ def get_args():
     parser.add_argument(
         '--save-interval',
         type=int,
-        default=30,
+        default=100,
         help='save interval, one save per n updates')
     parser.add_argument(
         '--eval-interval',
         type=int,
-        default=20,
+        default=30,
         help='eval interval, one eval per n updates')
     parser.add_argument(
         '--num-env-steps',
         type=int,
-        default=600000,
+        default=6000000,
         help='number of environment steps to train')
     parser.add_argument(
         '--env-name',
@@ -155,7 +160,7 @@ def get_args():
         help='directory to save agent logs (default: /tmp/gym)')
     parser.add_argument(
         '--save-dir',
-        default='./trained_models/',
+        default='trained_models/',
         help='directory to save agent logs')
     parser.add_argument(
         '--base-net-small',

@@ -18,7 +18,7 @@ def get_args():
         help='do imitation learning with gail')
     parser.add_argument(
         '--gail-experts-dir',
-        default='dataset/dataset-continuous-info-act',
+        default='dataset/dataset_sorting_env',
         help='directory that contains expert demonstrations for gail')
     parser.add_argument(
         '--gail-batch-size',

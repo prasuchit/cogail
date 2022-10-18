@@ -57,12 +57,16 @@ class ig_dataset(torch.utils.data.Dataset):
         # frame_idx = self.frame_idx_list[index]
         # padding = np.array([[0.0 for i in range(self.state_size)] for _ in range(self.seq_length - len(inputs))])
         # inputs = np.concatenate(([padding, inputs]), axis=0)
+        if torch.is_tensor(self.data_buff_actions[index]):
+            self.data_buff_actions[index]= torch.FloatTensor(np.array(self.data_buff_actions[index].cpu().numpy(), dtype=np.float32).squeeze()).view(-1)
+        if torch.is_tensor(self.data_buff_states[index]):
+            self.data_buff_states[index]= torch.FloatTensor(np.array(self.data_buff_states[index].cpu().numpy(), dtype=np.float32).squeeze()).view(-1)
 
-        action_gt = torch.FloatTensor(np.array(self.data_buff_actions[index].cpu().numpy())).view(-1)
+        action_gt = np.array(self.data_buff_actions[index], dtype=np.float32).squeeze()
         # action_gt[:3] *= 1000.0
         # action_gt[7:10] *= 1000.0
 
-        inputs = torch.FloatTensor(np.array(self.data_buff_states[index].cpu().numpy())).view(-1)
+        inputs = np.array(self.data_buff_states[index], dtype=np.float32).squeeze()
 
         # vid_id = torch.FloatTensor(np.array([video_idx]))
 

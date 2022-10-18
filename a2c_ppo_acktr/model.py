@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from a2c_ppo_acktr.distributions import Bernoulli, Categorical, DiagGaussian
+from a2c_ppo_acktr.distributions import Bernoulli, Categorical, DiagGaussian, GumbelSoftmax
 from a2c_ppo_acktr.utils import init
 
 class Flatten(nn.Module):

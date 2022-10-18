@@ -12,6 +12,8 @@ class igEnv():
     def __init__(self, args):
         self.args = args
         self.env = gym.make(args.env_name)
+        if args.render:
+            self.env.render()
         self.step_count = 0
 
         self.linspace = np.linspace(-0.8, 0.8, 5)
@@ -52,27 +54,22 @@ class igEnv():
 
         return torch.FloatTensor(self.env.reset()[None,:]), self.random_variable
 
-    def start_eval(self):
+    def start_eval(self, render):
         self.eval_mode = True
         self.current_step_size = self.max_step_size
+        if render:
+            self.env.render()
 
     def stop_eval(self):
         self.eval_mode = False
 
     def step(self, actions):
-        success = False
-
-        if self.step_count > self.current_step_size:
-            done = True
-            obs, _ = self.reset()
-            return torch.FloatTensor(obs), torch.FloatTensor([[float(success)], ]), [done], [{'bad_transition':True}], self.random_variable
-        else:
-            if torch.is_tensor(actions):
-                if actions.device != 'cpu':
-                    actions = actions[0].detach().cpu().numpy()
-            else: actions = actions[0]
-            self.step_count += 1
-            obs, reward, done, info = self.env.step(actions)
+        if torch.is_tensor(actions):
+            if actions.device != 'cpu':
+                actions = actions[0].detach().cpu().numpy()
+        else: actions = actions[0]
+        self.step_count += 1
+        obs, reward, done, info = self.env.step(actions)
 
         if not done:
             return torch.FloatTensor(obs[None,:]), torch.FloatTensor([[float(reward)],]), [done], [{}], self.random_variable

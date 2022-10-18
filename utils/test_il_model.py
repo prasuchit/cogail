@@ -65,34 +65,27 @@ def main(sysargv):
     # device = torch.device("cuda:0" if args.cuda else "cpu")
     device = "cpu"
 
-    folder = PACKAGE_PATH + f'/trained_models/{args.env_name}'
+    folder = PACKAGE_PATH + f'/trained_models/{args.env_name}/IL_model'
 
-    actor_critic, obs_rms = torch.load(os.path.join("{0}/{1}.pt".format(folder, args.env_name)), map_location=device)
+    actor_critic, obs_rms = torch.load(os.path.join("{0}/{1}{2}.pt".format(folder, args.env_name, '_seed_1_step_30_score_-0.6044373')), map_location=device)
     # model = PPO.load(os.path.join("{0}/{1}_ppo.zip".format(folder, args.env_name)), device = device)
     # mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
     obs, random_seed = envs.reset()
     obs, random_seed = obs.to(device), random_seed.to(device)
-
-    states_rollout = []
-    next_states_rollout = []
-    actions_rollout = []
-    rewards_rollout = []
-    dones_rollout = []
-    infos_rollout = []
 
     length_stats = []
     reward_stats = []
 
     length = 0
     reward = 0
-    num_steps = 1000
+    num_steps = 400
     num_processes=1
 
     recurrent_hidden_states = torch.zeros(
         num_processes, actor_critic.recurrent_hidden_state_size, device=device)
     masks = torch.zeros(num_processes, 1, device=device)
 
-    for step in tqdm(range(num_steps)):
+    for step in range(num_steps):
         with torch.no_grad():
             _, action, _, recurrent_hidden_states = actor_critic.act(
                                                         obs,
@@ -108,13 +101,6 @@ def main(sysargv):
         rewards = sum(rewards)
         dones = all(dones)
 
-        states_rollout.append(obs)
-        next_states_rollout.append(new_obs)
-        actions_rollout.append(action)
-        rewards_rollout.append(rewards)
-        dones_rollout.append([dones])
-        infos_rollout.append(infos)
-
         if dones:
             obs, random_seed = envs.reset()
             obs, random_seed = obs.to(device), random_seed.to(device)
@@ -129,25 +115,6 @@ def main(sysargv):
 
             length += 1
             reward += rewards
-                
-        # states_rollout = torch.tensor(states_rollout).float()
-        # next_states_rollout = torch.tensor(next_states_rollout).float()
-        # actions_rollout = torch.tensor(actions_rollout).float()
-        # rewards_rollout = torch.tensor(rewards_rollout).float()
-        # dones_rollout = torch.tensor(dones_rollout).float()
-
-    trajectories = {
-    'state': states_rollout,
-    'action': actions_rollout,
-    'reward': rewards_rollout,
-    'done': dones_rollout,
-    'next_state': next_states_rollout
-    }
-
-    save_path = f'{PACKAGE_PATH}/buffers/{args.env_name}'
-    if not os.path.isdir(save_path):
-        os.makedirs(save_path)
-    torch.save(trajectories, f'{save_path}/data.pt')    
 
     print(f'Collect Episodes: {len(length_stats)} | Avg Length: {round(np.mean(length_stats), 2)} | Avg Reward: {th.round(th.mean(th.stack(reward_stats)))}')  
 
